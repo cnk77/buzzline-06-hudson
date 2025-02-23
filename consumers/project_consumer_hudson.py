@@ -46,10 +46,13 @@ def main():
     # Initialize data storage and plot
     temperatures = deque(maxlen=100)
     timestamps = deque(maxlen=100)
+    alert_timestamps = deque(maxlen=100)
+    alert_temperatures = deque(maxlen=100)
     
     plt.ion()
     fig, ax = plt.subplots()
     line, = ax.plot(timestamps, temperatures, 'r-')
+    alert_line, = ax.plot(alert_timestamps, alert_temperatures, 'ro')  # Define the alert line here
     
     # Configure x-axis for datetime
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))
@@ -71,9 +74,19 @@ def main():
             timestamps.append(timestamp)
             temperatures.append(data['temperature'])
             
+            # Check for temperature alerts
+            temperature = data['temperature']
+            if temperature < 2.0 or temperature > 8.0:
+                logger.warning(f"Temperature alert! Value: {temperature}°C at {data['timestamp']}")
+                alert_timestamps.append(timestamp)
+                alert_temperatures.append(temperature)
+
             # Update plot
             line.set_xdata(timestamps)
             line.set_ydata(temperatures)
+            alert_line.set_xdata(alert_timestamps)
+            alert_line.set_ydata(alert_temperatures)
+            
             ax.relim()
             ax.autoscale_view()
             fig.canvas.draw()
