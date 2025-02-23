@@ -4,6 +4,8 @@ This project shows how streaming data can be consumed and visualized using a Kaf
 
 The data is time and temperature data that could be encountered in various industries and applications. The Kafka producer takes data from a .csv file and writes it to a Kafka topic. The consumer plots the time and temperature data from the Kafka topic and plots then on a line chart. There is an alert if the temperature is less than 2.0C or greater then 8.0C.
 
+![alt text](image.png)
+
 Task 1. Use Tools from Module 1 and 2
 Before starting, ensure you have completed the setup tasks in https://github.com/denisecase/buzzline-01-case and https://github.com/denisecase/buzzline-02-case first. Python 3.11 is required.
 
