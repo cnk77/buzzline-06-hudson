@@ -1,29 +1,20 @@
 """
-csv_producer_hudson.py
+project_producer_hudson.py
 
 Stream numeric data to a Kafka topic.
-
 It is common to transfer csv data as JSON so 
 each field is clearly labeled. 
 """
 
-#####################################
 # Import Modules
-#####################################
-
-# Import packages from Python Standard Library
 import os
 import sys
-import time  # control message intervals
-import pathlib  # work with file paths
-import csv  # handle CSV data
-import json  # work with JSON data
-from datetime import datetime  # work with timestamps
-
-# Import external packages
+import time
+import pathlib
+import csv
+import json
+from datetime import datetime
 from dotenv import load_dotenv
-
-# Import functions from local modules
 from utils.utils_producer import (
     verify_services,
     create_kafka_producer,
@@ -31,23 +22,17 @@ from utils.utils_producer import (
 )
 from utils.utils_logger import logger
 
-#####################################
 # Load Environment Variables
-#####################################
-
 load_dotenv()
 
-#####################################
 # Getter Functions for .env Variables
-#####################################
-
-
 def get_kafka_topic() -> str:
     """Fetch Kafka topic from environment or use default."""
     topic = os.getenv("SMOKER_TOPIC", "unknown_topic")
+    if topic == "unknown_topic":
+        logger.warning("Using default Kafka topic.")
     logger.info(f"Kafka topic: {topic}")
     return topic
-
 
 def get_message_interval() -> int:
     """Fetch message interval from environment or use default."""
@@ -55,29 +40,17 @@ def get_message_interval() -> int:
     logger.info(f"Message interval: {interval} seconds")
     return interval
 
-
-#####################################
 # Set up Paths
-#####################################
-
-# The parent directory of this file is its folder.
-# Go up one more parent level to get the project root.
 PROJECT_ROOT = pathlib.Path(__file__).parent.parent
 logger.info(f"Project root: {PROJECT_ROOT}")
 
-# Set directory where data is stored
 DATA_FOLDER = PROJECT_ROOT.joinpath("data")
 logger.info(f"Data folder: {DATA_FOLDER}")
 
-# Set the name of the data file
-DATA_FILE = DATA_FOLDER.joinpath("smoker_tempsKRH.csv")
+DATA_FILE = DATA_FOLDER.joinpath("temps.csv")
 logger.info(f"Data file: {DATA_FILE}")
 
-#####################################
 # Message Generator
-#####################################
-
-
 def generate_messages(file_path: pathlib.Path):
     """
     Read from a csv file and yield records one by one, continuously.
@@ -86,12 +59,12 @@ def generate_messages(file_path: pathlib.Path):
         file_path (pathlib.Path): Path to the CSV file.
 
     Yields:
-        str: CSV row formatted as a string.
+        dict: CSV row formatted as a dictionary.
     """
     while True:
         try:
             logger.info(f"Opening data file in read mode: {DATA_FILE}")
-            with open(DATA_FILE, "r") as csv_file:
+            with open(DATA_FILE, "r", encoding="utf-8-sig") as csv_file:
                 logger.info(f"Reading data from file: {DATA_FILE}")
 
                 csv_reader = csv.DictReader(csv_file)
@@ -112,16 +85,14 @@ def generate_messages(file_path: pathlib.Path):
         except FileNotFoundError:
             logger.error(f"File not found: {file_path}. Exiting.")
             sys.exit(1)
+        except csv.Error as e:
+            logger.error(f"CSV error in message generation: {e}")
+            sys.exit(2)
         except Exception as e:
             logger.error(f"Unexpected error in message generation: {e}")
             sys.exit(3)
 
-
-#####################################
 # Define main function for this module.
-#####################################
-
-
 def main():
     """
     Main entry point for the producer.
@@ -176,10 +147,6 @@ def main():
 
     logger.info("END producer.")
 
-
-#####################################
 # Conditional Execution
-#####################################
-
 if __name__ == "__main__":
     main()

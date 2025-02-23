@@ -30,5 +30,5 @@ for i in range(total_minutes):
 data = pd.DataFrame({"timestamp": timestamps, "temperature": temperatures})
 
 # Save to CSV
-csv_file_path = "smoker_temps.csv"
+csv_file_path = "temps.csv"
 data.to_csv(csv_file_path, index=False)
