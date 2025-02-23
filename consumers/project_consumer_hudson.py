@@ -1,3 +1,12 @@
+"""
+project_consumer_hudson.py
+
+Consumes json messages from a Kafka topic and plots a line graph with temperature alerts
+
+"""
+
+#Import Modules
+
 import os
 import json
 import matplotlib.pyplot as plt
